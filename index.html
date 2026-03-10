@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jackal Sniper Hunt</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="game-shell">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">JACKAL // SNIPER MODE</p>
+        <h1>Sniper Hunt</h1>
+      </div>
+      <button id="startBtn" class="start-btn">Start Mission</button>
+    </header>
+
+    <section class="hud">
+      <div class="stat-card">
+        <span class="label">Score</span>
+        <strong id="score">0</strong>
+      </div>
+      <div class="stat-card">
+        <span class="label">Kills</span>
+        <strong id="kills">0</strong>
+      </div>
+      <div class="stat-card">
+        <span class="label">Combo</span>
+        <strong id="combo">x1</strong>
+      </div>
+      <div class="stat-card">
+        <span class="label">Ammo</span>
+        <strong id="ammo">6</strong>
+      </div>
+      <div class="stat-card">
+        <span class="label">Time</span>
+        <strong id="time">60</strong>
+      </div>
+      <div class="stat-card wide">
+        <span class="label">Mission Feed</span>
+        <strong id="status">Press Start Mission to begin.</strong>
+      </div>
+    </section>
+
+    <main class="arena-wrap">
+      <div id="gameArea" class="game-area">
+        <div class="skyline"></div>
+        <div class="scope">
+          <div class="crosshair vertical"></div>
+          <div class="crosshair horizontal"></div>
+          <div class="scope-ring"></div>
+        </div>
+        <div class="scanline"></div>
+      </div>
+    </main>
+
+    <section class="legend-panel">
+      <div class="legend-card">
+        <h2>Scoring</h2>
+        <ul>
+          <li>Body shot: 100 points</li>
+          <li>Elite target: +75 bonus</li>
+          <li>Headshot: +150 precision bonus</li>
+          <li>Long range shot: +50 bonus</li>
+          <li>Fast combo kills raise your multiplier</li>
+        </ul>
+      </div>
+      <div class="legend-card">
+        <h2>How to Play</h2>
+        <ul>
+          <li>Move your mouse or finger to aim the sniper scope.</li>
+          <li>Click or tap enemies before they escape.</li>
+          <li>Reload automatically when your magazine empties.</li>
+          <li>Survive the full mission timer and chase a high score.</li>
+        </ul>
+      </div>
+    </section>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
