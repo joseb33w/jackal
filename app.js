@@ -1,5 +1,6 @@
 const gameArea = document.getElementById('gameArea');
 const startBtn = document.getElementById('startBtn');
+const pauseBtn = document.getElementById('pauseBtn');
 const scoreEl = document.getElementById('score');
 const killsEl = document.getElementById('kills');
 const comboEl = document.getElementById('combo');
@@ -14,6 +15,7 @@ const state = {
   ammo: 6,
   timeLeft: 60,
   running: false,
+  paused: false,
   enemyId: 0,
   spawnTimer: null,
   gameTimer: null,
@@ -40,7 +42,7 @@ function setStatus(message) {
 }
 
 function clearEnemies() {
-  gameArea.querySelectorAll('.enemy, .floating-text').forEach((node) => node.remove());
+  gameArea.querySelectorAll('.enemy, .floating-text, .overlay-message').forEach((node) => node.remove());
 }
 
 function resetGame() {
@@ -51,16 +53,32 @@ function resetGame() {
   state.timeLeft = 60;
   state.enemyId = 0;
   state.lastKillAt = 0;
+  state.paused = false;
   updateHud();
   clearEnemies();
+  gameArea.classList.remove('paused');
+  pauseBtn.textContent = 'Pause';
+  pauseBtn.disabled = true;
 }
 
 function randomBetween(min, max) {
   return Math.random() * (max - min) + min;
 }
 
+function showOverlay(title, description) {
+  const overlay = document.createElement('div');
+  overlay.className = 'overlay-message';
+  overlay.innerHTML = `
+    <div class="overlay-card">
+      <h3>${title}</h3>
+      <p>${description}</p>
+    </div>
+  `;
+  gameArea.appendChild(overlay);
+}
+
 function spawnEnemy() {
-  if (!state.running) return;
+  if (!state.running || state.paused) return;
 
   const type = enemyTypes[Math.floor(Math.random() * enemyTypes.length)];
   const enemy = document.createElement('button');
@@ -76,7 +94,7 @@ function spawnEnemy() {
   enemy.appendChild(tag);
 
   const areaRect = gameArea.getBoundingClientRect();
-  const startY = randomBetween(70, areaRect.height - 180);
+  const startY = randomBetween(70, Math.max(120, areaRect.height - 180));
   const direction = Math.random() > 0.5 ? 1 : -1;
   const startX = direction > 0 ? -80 : areaRect.width + 20;
   const endX = direction > 0 ? areaRect.width + 80 : -100;
@@ -90,6 +108,15 @@ function spawnEnemy() {
 
   function animate(now) {
     if (!enemy.isConnected) return;
+    if (!state.running) {
+      enemy.remove();
+      return;
+    }
+    if (state.paused) {
+      requestAnimationFrame(animate);
+      return;
+    }
+
     const progress = Math.min((now - start) / duration, 1);
     const currentX = startX + (endX - startX) * progress;
     const wave = Math.sin(progress * Math.PI * 2) * (type.key === 'runner' ? 36 : 22);
@@ -112,6 +139,7 @@ function spawnEnemy() {
 }
 
 function spawnLoop() {
+  if (!state.running || state.paused) return;
   spawnEnemy();
   const nextSpawn = Math.max(450, 1200 - (60 - state.timeLeft) * 8);
   state.spawnTimer = window.setTimeout(spawnLoop, nextSpawn);
@@ -129,7 +157,7 @@ function showFloatingText(x, y, text, color = '#ffd166') {
 }
 
 function reload() {
-  if (state.reloadTimer || !state.running) return;
+  if (state.reloadTimer || !state.running || state.paused) return;
   setStatus('Reloading...');
   state.reloadTimer = window.setTimeout(() => {
     state.ammo = 6;
@@ -139,15 +167,24 @@ function reload() {
   }, 1200);
 }
 
-function endGame() {
-  state.running = false;
+function clearTimers() {
   window.clearTimeout(state.spawnTimer);
   window.clearInterval(state.gameTimer);
   window.clearTimeout(state.reloadTimer);
   state.spawnTimer = null;
   state.gameTimer = null;
   state.reloadTimer = null;
+}
+
+function endGame() {
+  state.running = false;
+  state.paused = false;
+  clearTimers();
   startBtn.textContent = 'Restart Mission';
+  pauseBtn.textContent = 'Pause';
+  pauseBtn.disabled = true;
+  gameArea.classList.remove('paused');
+  showOverlay('Mission Complete', `Final score ${state.score} with ${state.kills} kills. Press Restart Mission to play again.`);
   setStatus(`Mission complete. Final score ${state.score} with ${state.kills} kills.`);
 }
 
@@ -155,9 +192,11 @@ function startGame() {
   resetGame();
   state.running = true;
   startBtn.textContent = 'Mission Active';
+  pauseBtn.disabled = false;
   setStatus('Mission live. Engage all hostile targets.');
   spawnLoop();
   state.gameTimer = window.setInterval(() => {
+    if (state.paused) return;
     state.timeLeft -= 1;
     if (state.timeLeft <= 0) {
       state.timeLeft = 0;
@@ -169,8 +208,29 @@ function startGame() {
   }, 1000);
 }
 
+function togglePause() {
+  if (!state.running) return;
+
+  state.paused = !state.paused;
+  gameArea.classList.toggle('paused', state.paused);
+
+  if (state.paused) {
+    pauseBtn.textContent = 'Resume';
+    showOverlay('Mission Paused', 'Take a breath. Tap Resume when you are ready to continue the hunt.');
+    setStatus('Mission paused. Tap Resume to continue.');
+    window.clearTimeout(state.spawnTimer);
+    state.spawnTimer = null;
+    return;
+  }
+
+  pauseBtn.textContent = 'Pause';
+  gameArea.querySelector('.overlay-message')?.remove();
+  setStatus('Mission resumed. Targets incoming.');
+  spawnLoop();
+}
+
 function scoreShot(enemy, event) {
-  if (!state.running || state.ammo <= 0) return;
+  if (!state.running || state.paused || state.ammo <= 0) return;
 
   state.ammo -= 1;
   updateHud();
@@ -230,8 +290,10 @@ startBtn.addEventListener('click', () => {
   }
 });
 
+pauseBtn.addEventListener('click', togglePause);
+
 gameArea.addEventListener('click', (event) => {
-  if (!state.running) return;
+  if (!state.running || state.paused) return;
 
   const enemy = event.target.closest('.enemy');
   if (enemy) {
@@ -255,12 +317,26 @@ gameArea.addEventListener('mousemove', (event) => {
   const x = event.clientX - rect.left;
   const y = event.clientY - rect.top;
   const scope = gameArea.querySelector('.scope');
-  scope.style.setProperty('--x', `${x}px`);
-  scope.style.setProperty('--y', `${y}px`);
+  if (!scope) return;
   scope.querySelectorAll('.crosshair, .scope-ring').forEach((node) => {
     node.style.left = `${x}px`;
     node.style.top = `${y}px`;
   });
 });
 
+gameArea.addEventListener('touchmove', (event) => {
+  const touch = event.touches[0];
+  if (!touch) return;
+  const rect = gameArea.getBoundingClientRect();
+  const x = touch.clientX - rect.left;
+  const y = touch.clientY - rect.top;
+  const scope = gameArea.querySelector('.scope');
+  if (!scope) return;
+  scope.querySelectorAll('.crosshair, .scope-ring').forEach((node) => {
+    node.style.left = `${x}px`;
+    node.style.top = `${y}px`;
+  });
+}, { passive: true });
+
 updateHud();
+pauseBtn.disabled = true;
