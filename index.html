@@ -6,17 +6,21 @@
   <title>Jackal Sniper Hunt</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <div class="game-shell">
-    <header class="topbar">
-      <div>
+    <header class="topbar panel">
+      <div class="brand-copy">
         <p class="eyebrow">JACKAL // SNIPER MODE</p>
         <h1>Sniper Hunt</h1>
+        <p class="hero-copy">Lock onto moving targets, build combos, manage ammo, and survive the full mission timer in this arcade-style browser shooter.</p>
       </div>
-      <button id="startBtn" class="start-btn">Start Mission</button>
+      <div class="hero-actions">
+        <button id="startBtn" class="start-btn" type="button">Start Mission</button>
+        <button id="pauseBtn" class="ghost-btn" type="button">Pause</button>
+      </div>
     </header>
 
     <section class="hud">
@@ -40,45 +44,66 @@
         <span class="label">Time</span>
         <strong id="time">60</strong>
       </div>
-      <div class="stat-card wide">
+      <div class="stat-card wide mission-feed">
         <span class="label">Mission Feed</span>
         <strong id="status">Press Start Mission to begin.</strong>
       </div>
     </section>
 
-    <main class="arena-wrap">
-      <div id="gameArea" class="game-area">
-        <div class="skyline"></div>
-        <div class="scope">
-          <div class="crosshair vertical"></div>
-          <div class="crosshair horizontal"></div>
-          <div class="scope-ring"></div>
+    <main class="main-layout">
+      <section class="arena-panel panel">
+        <div class="section-heading">
+          <div>
+            <h2>Combat Zone</h2>
+            <p>Track the scope, click fast, and stop enemies before they escape across the skyline.</p>
+          </div>
+          <span class="pill">60 second mission</span>
         </div>
-        <div class="scanline"></div>
-      </div>
-    </main>
 
-    <section class="legend-panel">
-      <div class="legend-card">
-        <h2>Scoring</h2>
-        <ul>
-          <li>Body shot: 100 points</li>
-          <li>Elite target: +75 bonus</li>
-          <li>Headshot: +150 precision bonus</li>
-          <li>Long range shot: +50 bonus</li>
-          <li>Fast combo kills raise your multiplier</li>
-        </ul>
-      </div>
-      <div class="legend-card">
-        <h2>How to Play</h2>
-        <ul>
-          <li>Move your mouse or finger to aim the sniper scope.</li>
-          <li>Click or tap enemies before they escape.</li>
-          <li>Reload automatically when your magazine empties.</li>
-          <li>Survive the full mission timer and chase a high score.</li>
-        </ul>
-      </div>
-    </section>
+        <div id="gameArea" class="game-area" aria-label="Jackal game area">
+          <div class="skyline"></div>
+          <div class="scope">
+            <div class="crosshair vertical"></div>
+            <div class="crosshair horizontal"></div>
+            <div class="scope-ring"></div>
+          </div>
+          <div class="scanline"></div>
+        </div>
+      </section>
+
+      <aside class="sidebar-stack">
+        <section class="panel info-panel">
+          <div class="section-heading compact">
+            <div>
+              <h2>Scoring Intel</h2>
+              <p>Every shot matters. Precision and streaks multiply your score.</p>
+            </div>
+          </div>
+          <ul class="feature-list">
+            <li><span>Body shot</span><strong>Base target points</strong></li>
+            <li><span>Headshot</span><strong>+150 bonus</strong></li>
+            <li><span>Edge shot</span><strong>+50 bonus</strong></li>
+            <li><span>Elite target</span><strong>+75 bonus</strong></li>
+            <li><span>Fast streaks</span><strong>Combo multiplier up to x4</strong></li>
+          </ul>
+        </section>
+
+        <section class="panel info-panel">
+          <div class="section-heading compact">
+            <div>
+              <h2>How to Play</h2>
+              <p>Simple controls, fast pacing, and clean feedback.</p>
+            </div>
+          </div>
+          <ul class="feature-list tips">
+            <li><span>Aim</span><strong>Move your mouse or finger</strong></li>
+            <li><span>Fire</span><strong>Click or tap enemies</strong></li>
+            <li><span>Reload</span><strong>Automatic when magazine empties</strong></li>
+            <li><span>Win</span><strong>Stack kills before time runs out</strong></li>
+          </ul>
+        </section>
+      </aside>
+    </main>
   </div>
 
   <script src="app.js"></script>
